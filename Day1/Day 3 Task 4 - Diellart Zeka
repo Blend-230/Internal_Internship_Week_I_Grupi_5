@@ -1,0 +1,59 @@
+#include <stdio.h>
+
+int main() {
+    int a;
+    double b;
+
+    int *pA;
+    double *pB;
+
+    // Input
+    printf("Shkruaj nje vlere int: ");
+    scanf("%d", &a);
+
+    printf("Shkruaj nje vlere double: ");
+    scanf("%lf", &b);
+
+    // Assign pointers
+    pA = &a;
+    pB = &b;
+
+    // Print vlerat dhe adresat
+    printf("\n--- Para ndryshimit ---\n");
+    printf("a = %d\n", a);
+    printf("Adresa e a = %p\n", &a);
+    printf("Vlera e a nga pointer = %d\n", *pA);
+
+    printf("\nb = %.2lf\n", b);
+    printf("Adresa e b = %p\n", &b);
+    printf("Vlera e b nga pointer = %.2lf\n", *pB);
+
+    // Ruaj vlerat fillestare
+    int oldA = a;
+
+    // Ndryshim përmes pointer-it
+    *pA = *pA + 10;
+
+    printf("\n--- Pas ndryshimit ---\n");
+    printf("a = %d\n", a);
+
+    // Kontroll me if/else
+    printf("\n--- Analiza ---\n");
+
+    if (a > oldA) {
+        printf("Vlera eshte rritur\n");
+    } else if (a < oldA) {
+        printf("Vlera eshte zvogeluar\n");
+    } else {
+        printf("Vlera ka mbetur e njejte\n");
+    }
+
+    // Interval check
+    if (a >= 0 && a <= 100) {
+        printf("Vlera eshte ne intervalin 0 - 100\n");
+    } else {
+        printf("Vlera eshte jashte intervalit 0 - 100\n");
+    }
+
+    return 0;
+}
