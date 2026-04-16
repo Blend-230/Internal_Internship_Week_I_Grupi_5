@@ -1,0 +1,6 @@
+************************************* Invoked: Tue Apr 14 10:57:59 2026
+[0] Arguments: C:\Users\DonartAhmeti\Downloads\msys2-x86_64-20260322.exe
+[1549] Operations sanity check succeeded.
+[1697] Warning: Cannot create lock file "C:\Users\DonartAhmeti\AppData\Local\Temp\msys2-x86_64-202603221234865.lock": The file exists.
+ (0x00000050)
+[1772] UnableToStart : Unable to start installer : Another msys2-x86_64-20260322 instance is already running. Wait until it finishes, close it, or restart your system.
