@@ -3,7 +3,6 @@
 
 #define MAX_STUDENTS 5
 
-// enum për status
 typedef enum {
     NOT_STARTED = 1,
     IN_PROGRESS,
@@ -17,7 +16,6 @@ typedef struct {
     Status status;
 } Student;
 
-// funksion për zgjedhjen e statusit
 Status chooseStatus() {
     int choice;
 
@@ -39,7 +37,6 @@ Status chooseStatus() {
     }
 }
 
-// funksion me pointer
 void addStudent(Student *s) {
     printf("\n--- Add New Student ---\n");
 
@@ -52,19 +49,16 @@ void addStudent(Student *s) {
     printf("Enter Progress (0-100): ");
     scanf("%f", &s->progress);
 
-    // validim më i fortë
     while (s->progress < 0 || s->progress > 100) {
         printf("Invalid progress! Enter again (0-100): ");
         scanf("%f", &s->progress);
     }
 
-    // përdor enum për status
     s->status = chooseStatus();
 
     printf("Student added successfully!\n");
 }
 
-// shfaq studentët
 void displayStudents(Student students[], int count) {
     printf("\n--- Student List ---\n");
 
@@ -93,6 +87,54 @@ void displayStudents(Student students[], int count) {
     }
 }
 
+// 🔥 TASK 3 - RAPORTI ANALITIK
+void generateReport(Student students[], int count) {
+    printf("\n===== STUDENT REPORT =====\n");
+
+    if (count == 0) {
+        printf("No data available.\n");
+        return;
+    }
+
+    int completed = 0;
+    float sum = 0;
+    float max = students[0].progress;
+    float min = students[0].progress;
+
+    for (int i = 0; i < count; i++) {
+        sum += students[i].progress;
+
+        if (students[i].status == COMPLETED) {
+            completed++;
+        }
+
+        if (students[i].progress > max) {
+            max = students[i].progress;
+        }
+
+        if (students[i].progress < min) {
+            min = students[i].progress;
+        }
+    }
+
+    float avg = sum / count;
+
+    printf("Total Students: %d\n", count);
+    printf("Completed Students: %d\n", completed);
+    printf("Average Progress: %.2f\n", avg);
+    printf("Highest Progress: %.2f\n", max);
+    printf("Lowest Progress: %.2f\n", min);
+
+    printf("\nPerformance: ");
+    if (avg >= 80) {
+        printf("Excellent\n");
+    } else if (avg >= 50) {
+        printf("Good\n");
+    } else {
+        printf("Needs Improvement\n");
+    }
+}
+
 int main() {
     Student students[MAX_STUDENTS];
     int count = 0;
@@ -102,12 +144,12 @@ int main() {
         printf("\n==== Student Progress Tracker ====\n");
         printf("1. Add Student\n");
         printf("2. Show Students\n");
-        printf("3. Exit\n");
+        printf("3. Show Report\n");
+        printf("4. Exit\n");
         printf("Choice: ");
         scanf("%d", &choice);
 
-        // validim menu
-        if (choice < 1 || choice > 3) {
+        if (choice < 1 || choice > 4) {
             printf("Invalid menu option! Try again.\n");
             continue;
         }
@@ -127,6 +169,10 @@ int main() {
                 break;
 
             case 3:
+                generateReport(students, count);
+                break;
+
+            case 4:
                 printf("Exiting...\n");
                 return 0;
         }
