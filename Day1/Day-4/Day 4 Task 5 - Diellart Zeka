@@ -1,1 +1,215 @@
+#include <stdio.h>
+#include <string.h>
 
+#define MAX 5
+
+enum Status { WEAK = 1, OK, GOOD };
+
+struct Student {
+    int id;
+    char name[50];
+    float score;
+    enum Status status;
+};
+
+void updateScore(struct Student *s) {
+    float newScore;
+    printf("Enter new score: ");
+    scanf("%f", &newScore);
+    s->score = newScore;
+}
+
+void updateStatus(struct Student *s) {
+    int choice;
+    printf("Select new status (1=WEAK, 2=OK, 3=GOOD): ");
+    scanf("%d", &choice);
+
+    switch(choice) {
+        case 1: s->status = WEAK; break;
+        case 2: s->status = OK; break;
+        case 3: s->status = GOOD; break;
+        default:
+            printf("Invalid status\n");
+    }
+}
+
+int main() {
+
+    struct Student students[MAX];
+    int count = 0;
+    int choice, statusChoice;
+    int idSearch;
+    char nameSearch[50];
+    int found;
+
+    while (1) {
+
+        printf("\n--- MENU ---\n");
+        printf("1. Add student\n");
+        printf("2. Show students\n");
+        printf("3. Update student\n");
+        printf("4. Search student\n");
+        printf("5. Exit\n");
+        printf("Choice: ");
+        scanf("%d", &choice);
+
+        switch(choice) {
+
+            case 1:
+
+                if (count >= MAX) {
+                    printf("Max limit reached!\n");
+                    break;
+                }
+
+                printf("Enter ID: ");
+                scanf("%d", &students[count].id);
+
+                printf("Enter Name: ");
+                scanf("%s", students[count].name);
+
+                printf("Enter Score: ");
+                scanf("%f", &students[count].score);
+
+                printf("Select Status (1=WEAK, 2=OK, 3=GOOD): ");
+                scanf("%d", &statusChoice);
+
+                switch(statusChoice) {
+                    case 1: students[count].status = WEAK; break;
+                    case 2: students[count].status = OK; break;
+                    case 3: students[count].status = GOOD; break;
+                    default:
+                        printf("Invalid status, set to WEAK\n");
+                        students[count].status = WEAK;
+                }
+
+                count++;
+                break;
+
+            case 2:
+
+                if (count == 0) {
+                    printf("No students yet.\n");
+                    break;
+                }
+
+                for (int i = 0; i < count; i++) {
+                    printf("\nID: %d\n", students[i].id);
+                    printf("Name: %s\n", students[i].name);
+                    printf("Score: %.2f\n", students[i].score);
+
+                    printf("Status: ");
+                    switch(students[i].status) {
+                        case WEAK: printf("WEAK\n"); break;
+                        case OK: printf("OK\n"); break;
+                        case GOOD: printf("GOOD\n"); break;
+                    }
+                }
+                break;
+
+            case 3:
+
+                if (count == 0) {
+                    printf("No students to update.\n");
+                    break;
+                }
+
+                printf("Enter student ID to update: ");
+                scanf("%d", &idSearch);
+
+                found = 0;
+
+                for (int i = 0; i < count; i++) {
+                    if (students[i].id == idSearch) {
+
+                        printf("1. Update Score\n");
+                        printf("2. Update Status\n");
+                        scanf("%d", &choice);
+
+                        if (choice == 1) updateScore(&students[i]);
+                        else if (choice == 2) updateStatus(&students[i]);
+
+                        found = 1;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    printf("Student not found!\n");
+                }
+
+                break;
+
+            case 4:
+
+                printf("Search by: 1-ID 2-Name\n");
+                scanf("%d", &choice);
+
+                found = 0;
+
+                if (choice == 1) {
+
+                    printf("Enter ID: ");
+                    scanf("%d", &idSearch);
+
+                    for (int i = 0; i < count; i++) {
+                        if (students[i].id == idSearch) {
+
+                            found = 1;
+
+                            printf("\nFOUND:\n");
+                            printf("ID: %d\n", students[i].id);
+                            printf("Name: %s\n", students[i].name);
+                            printf("Score: %.2f\n", students[i].score);
+
+                            if (students[i].score < 50 && students[i].status == WEAK)
+                                printf("WARNING: Very low performance!\n");
+                            else if (students[i].score < 70 || students[i].status == OK)
+                                printf("RECOMMENDATION: Needs improvement\n");
+                            else
+                                printf("STATUS: Good progress\n");
+                        }
+                    }
+                }
+
+                else if (choice == 2) {
+
+                    printf("Enter Name: ");
+                    scanf("%s", nameSearch);
+
+                    for (int i = 0; i < count; i++) {
+                        if (strcmp(students[i].name, nameSearch) == 0) {
+
+                            found = 1;
+
+                            printf("\nFOUND:\n");
+                            printf("ID: %d\n", students[i].id);
+                            printf("Name: %s\n", students[i].name);
+                            printf("Score: %.2f\n", students[i].score);
+
+                            if (students[i].score < 50)
+                                printf("WARNING: Critical score\n");
+                            else if (students[i].score < 75)
+                                printf("NOTE: Average performance\n");
+                            else
+                                printf("GOOD: Strong performance\n");
+                        }
+                    }
+                }
+
+                if (!found) {
+                    printf("No matching student found!\n");
+                }
+
+                break;
+
+            case 5:
+                return 0;
+
+            default:
+                printf("Invalid menu option!\n");
+        }
+    }
+
+    return 0;
+}
