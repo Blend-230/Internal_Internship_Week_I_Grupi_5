@@ -1,16 +1,15 @@
 #include <stdio.h>
 
 int main() {
+
     int score;
 
-    printf("Enter result (0-100): ");
+    printf("Enter score (0-100): ");
     scanf("%d", &score);
 
-    // Validate range first
     if (score < 0 || score > 100) {
         printf("Invalid input\n");
     }
-    // Then classify from highest to lowest
     else if (score >= 90) {
         printf("Shkelqyeshem\n");
     }
