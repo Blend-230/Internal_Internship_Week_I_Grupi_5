@@ -46,7 +46,18 @@ void showStatus(enum Status status) {
     }
 }
 
-void printStudent(struct Student student) {
+int findStudentById(struct Student students[], int count, int id) {
+    int i;
+    for (i = 0; i < count; i++) {
+        if (students[i].id == id) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void printStudent(struct Student student, int index) {
+    printf("\n--- Student %d ---\n", index + 1);
     printf("ID: %d\n", student.id);
     printf("Name: %s\n", student.name);
     printf("Progress: %.2f\n", student.progress);
@@ -55,19 +66,95 @@ void printStudent(struct Student student) {
     printf("\n");
 }
 
+void addStudent(struct Student students[], int *count) {
+    int statusChoice;
+
+    if (*count >= MAX_STUDENTS) {
+        printf("Maximum limit reached. Cannot add more students.\n");
+        return;
+    }
+
+    printf("Enter student ID: ");
+    if (scanf("%d", &students[*count].id) != 1) {
+        printf("Invalid ID input.\n");
+        clearInputBuffer();
+        return;
+    }
+
+    printf("Enter student name: ");
+    if (scanf("%49s", students[*count].name) != 1) {
+        printf("Invalid name input.\n");
+        clearInputBuffer();
+        return;
+    }
+
+    printf("Enter progress (0-100): ");
+    if (scanf("%f", &students[*count].progress) != 1) {
+        printf("Invalid progress input.\n");
+        clearInputBuffer();
+        return;
+    }
+
+    updateProgress(&students[*count].progress);
+
+    printf("Choose status:\n");
+    printf("1. Not Started\n");
+    printf("2. In Progress\n");
+    printf("3. Completed\n");
+    printf("Enter status: ");
+
+    if (scanf("%d", &statusChoice) != 1) {
+        printf("Invalid status input.\n");
+        clearInputBuffer();
+        return;
+    }
+
+    switch (statusChoice) {
+        case 1:
+            students[*count].status = NOT_STARTED;
+            break;
+        case 2:
+            students[*count].status = IN_PROGRESS;
+            break;
+        case 3:
+            students[*count].status = COMPLETED;
+            break;
+        default:
+            printf("Invalid status choice. Record not added.\n");
+            return;
+    }
+
+    (*count)++;
+    printf("Student record added successfully.\n");
+}
+
+void showAllStudents(struct Student students[], int count) {
+    int i;
+
+    if (count == 0) {
+        printf("No student records saved yet.\n");
+        return;
+    }
+
+    printf("\n=== ALL STUDENT RECORDS ===\n");
+    for (i = 0; i < count; i++) {
+        printStudent(students[i], i);
+    }
+}
+
 void showReport(struct Student students[], int count) {
     int i;
     int completedCount = 0;
     float totalProgress = 0;
-    float highestProgress, lowestProgress, averageProgress;
+    float highest, lowest, average;
 
     if (count == 0) {
-        printf("\nNo records available for analysis.\n");
+        printf("No records available for report.\n");
         return;
     }
 
-    highestProgress = students[0].progress;
-    lowestProgress = students[0].progress;
+    highest = students[0].progress;
+    lowest = students[0].progress;
 
     for (i = 0; i < count; i++) {
         totalProgress += students[i].progress;
@@ -76,279 +163,221 @@ void showReport(struct Student students[], int count) {
             completedCount++;
         }
 
-        if (students[i].progress > highestProgress) {
-            highestProgress = students[i].progress;
+        if (students[i].progress > highest) {
+            highest = students[i].progress;
         }
 
-        if (students[i].progress < lowestProgress) {
-            lowestProgress = students[i].progress;
+        if (students[i].progress < lowest) {
+            lowest = students[i].progress;
         }
     }
 
-    averageProgress = totalProgress / count;
+    average = totalProgress / count;
 
-    printf("\n--- Student Progress Report ---\n");
+    printf("\n=== STUDENT REPORT ===\n");
     printf("Total records: %d\n", count);
     printf("Completed students: %d\n", completedCount);
-    printf("Average progress: %.2f\n", averageProgress);
-    printf("Highest progress: %.2f\n", highestProgress);
-    printf("Lowest progress: %.2f\n", lowestProgress);
+    printf("Average progress: %.2f\n", average);
+    printf("Highest progress: %.2f\n", highest);
+    printf("Lowest progress: %.2f\n", lowest);
 
-    if (averageProgress >= 80) {
+    if (average >= 80) {
         printf("Class performance: Excellent\n");
-    } else if (averageProgress >= 60) {
+    } else if (average >= 50) {
         printf("Class performance: Good\n");
-    } else if (averageProgress >= 40) {
-        printf("Class performance: Needs Improvement\n");
     } else {
-        printf("Class performance: Weak\n");
+        printf("Class performance: Needs improvement\n");
     }
-
-    if (completedCount == count) {
-        printf("Completion status: All students completed their progress.\n");
-    } else if (completedCount > 0) {
-        printf("Completion status: Some students completed their progress.\n");
-    } else {
-        printf("Completion status: No student has completed progress yet.\n");
-    }
-
-    printf("-------------------------------\n");
 }
 
-void modifyStudentProgress(struct Student *student) {
-    float oldProgress, newProgress;
+void modifyStudentProgress(struct Student students[], int count) {
+    int id;
+    int index;
+    float newProgress;
 
-    oldProgress = student->progress;
+    if (count == 0) {
+        printf("No records available.\n");
+        return;
+    }
 
-    printf("Current progress: %.2f\n", student->progress);
-    printf("Enter new progress (0-100): ");
+    printf("Enter student ID to update progress: ");
+    if (scanf("%d", &id) != 1) {
+        printf("Invalid ID input.\n");
+        clearInputBuffer();
+        return;
+    }
 
+    index = findStudentById(students, count, id);
+
+    if (index == -1) {
+        printf("Student not found.\n");
+        return;
+    }
+
+    printf("Current progress: %.2f\n", students[index].progress);
+    printf("Enter new progress: ");
     if (scanf("%f", &newProgress) != 1) {
         printf("Invalid progress input.\n");
         clearInputBuffer();
         return;
     }
 
-    student->progress = newProgress;
-    updateProgress(&student->progress);
+    students[index].progress = newProgress;
+    updateProgress(&students[index].progress);
 
-    if (student->progress == 100) {
-        student->status = COMPLETED;
-    } else if (student->progress > 0) {
-        student->status = IN_PROGRESS;
+    if (students[index].progress >= 100) {
+        students[index].status = COMPLETED;
+    } else if (students[index].progress > 0) {
+        students[index].status = IN_PROGRESS;
     } else {
-        student->status = NOT_STARTED;
+        students[index].status = NOT_STARTED;
     }
 
-    printf("Address of selected student: %p\n", (void *)student);
-    printf("Old progress: %.2f\n", oldProgress);
-    printf("New progress: %.2f\n", student->progress);
-
-    if (student->progress > oldProgress) {
-        printf("Result: Progress increased.\n");
-    } else if (student->progress < oldProgress) {
-        printf("Result: Progress decreased.\n");
-    } else {
-        printf("Result: Progress stayed the same.\n");
-    }
-}
-
-void showRecommendation(struct Student student) {
-    printf("Recommendation: ");
-
-    if (student.progress < 40 && student.status == NOT_STARTED) {
-        printf("Urgent warning - student has very low progress and has not started yet.\n");
-    } else if (student.progress < 40 && student.status == IN_PROGRESS) {
-        printf("Warning - student needs much more practice.\n");
-    } else if (student.progress >= 40 && student.progress < 70 && student.status == IN_PROGRESS) {
-        printf("Student is improving, but still needs more work.\n");
-    } else if (student.progress >= 70 && student.progress < 100 && student.status == IN_PROGRESS) {
-        printf("Good progress - student is close to completion.\n");
-    } else if (student.progress == 100 && student.status == COMPLETED) {
-        printf("Excellent - student completed all progress.\n");
-    } else if (student.progress >= 70 && student.status == NOT_STARTED) {
-        printf("Check data - progress is high but status says Not Started.\n");
-    } else if (student.progress == 0 && student.status == COMPLETED) {
-        printf("Check data - completed status does not match the progress.\n");
-    } else {
-        printf("Student record is valid. Continue monitoring progress.\n");
-    }
-}
-
-void searchById(struct Student students[], int count) {
-    int searchId;
-    int i;
-    int found = 0;
-
-    printf("Enter ID to search: ");
-    if (scanf("%d", &searchId) != 1) {
-        printf("Invalid ID input.\n");
-        clearInputBuffer();
-        return;
-    }
-
-    for (i = 0; i < count; i++) {
-        if (students[i].id == searchId) {
-            printf("\n--- Matching Record ---\n");
-            printStudent(students[i]);
-            showRecommendation(students[i]);
-            printf("-----------------------\n");
-            found = 1;
-        }
-    }
-
-    if (!found) {
-        printf("No student found with ID %d.\n", searchId);
-    }
-}
-
-void searchByName(struct Student students[], int count) {
-    char searchName[50];
-    int i;
-    int found = 0;
-
-    printf("Enter name to search: ");
-    if (scanf("%49s", searchName) != 1) {
-        printf("Invalid name input.\n");
-        clearInputBuffer();
-        return;
-    }
-
-    for (i = 0; i < count; i++) {
-        if (strcmp(students[i].name, searchName) == 0) {
-            printf("\n--- Matching Record ---\n");
-            printStudent(students[i]);
-            showRecommendation(students[i]);
-            printf("-----------------------\n");
-            found = 1;
-        }
-    }
-
-    if (!found) {
-        printf("No student found with name %s.\n", searchName);
-    }
+    printf("Student progress updated successfully.\n");
 }
 
 void searchStudent(struct Student students[], int count) {
-    int searchChoice;
+    int choice;
+    int id;
+    char name[50];
+    int i, found = 0;
 
     if (count == 0) {
-        printf("No student records available for search.\n");
+        printf("No records available.\n");
         return;
     }
 
-    printf("\n--- Search Student ---\n");
-    printf("1. Search by ID\n");
-    printf("2. Search by Name\n");
+    printf("Search by:\n");
+    printf("1. ID\n");
+    printf("2. Name\n");
     printf("Enter choice: ");
-
-    if (scanf("%d", &searchChoice) != 1) {
-        printf("Invalid search menu input.\n");
+    if (scanf("%d", &choice) != 1) {
+        printf("Invalid choice input.\n");
         clearInputBuffer();
         return;
     }
 
-    switch (searchChoice) {
-        case 1:
-            searchById(students, count);
-            break;
-        case 2:
-            searchByName(students, count);
-            break;
-        default:
-            printf("Invalid search option.\n");
+    if (choice == 1) {
+        printf("Enter ID: ");
+        if (scanf("%d", &id) != 1) {
+            printf("Invalid ID input.\n");
+            clearInputBuffer();
+            return;
+        }
+
+        for (i = 0; i < count; i++) {
+            if (students[i].id == id) {
+                printStudent(students[i], i);
+
+                if (students[i].progress < 40 && students[i].status != COMPLETED) {
+                    printf("Warning: Low progress, student needs more practice.\n");
+                } else if (students[i].progress >= 40 && students[i].progress < 80) {
+                    printf("Recommendation: Student is improving, keep working.\n");
+                } else {
+                    printf("Great job: Student is performing very well.\n");
+                }
+
+                found = 1;
+                break;
+            }
+        }
+    } else if (choice == 2) {
+        printf("Enter name: ");
+        if (scanf("%49s", name) != 1) {
+            printf("Invalid name input.\n");
+            clearInputBuffer();
+            return;
+        }
+
+        for (i = 0; i < count; i++) {
+            if (strcmp(students[i].name, name) == 0) {
+                printStudent(students[i], i);
+
+                if (students[i].progress < 40 && students[i].status != COMPLETED) {
+                    printf("Warning: Low progress, student needs more practice.\n");
+                } else if (students[i].progress >= 40 && students[i].progress < 80) {
+                    printf("Recommendation: Student is improving, keep working.\n");
+                } else {
+                    printf("Great job: Student is performing very well.\n");
+                }
+
+                found = 1;
+            }
+        }
+    } else {
+        printf("Invalid search choice.\n");
+        return;
+    }
+
+    if (!found) {
+        printf("No matching student found.\n");
     }
 }
 
 void rankStudents(struct Student students[], int count) {
-    struct Student temp[MAX_STUDENTS];
-    struct Student swap;
     int i, j;
+    struct Student temp;
 
     if (count == 0) {
-        printf("No student records available for ranking.\n");
+        printf("No records available.\n");
         return;
-    }
-
-    for (i = 0; i < count; i++) {
-        temp[i] = students[i];
     }
 
     for (i = 0; i < count - 1; i++) {
         for (j = i + 1; j < count; j++) {
-            if (temp[j].progress > temp[i].progress) {
-                swap = temp[i];
-                temp[i] = temp[j];
-                temp[j] = swap;
+            if (students[j].progress > students[i].progress) {
+                temp = students[i];
+                students[i] = students[j];
+                students[j] = temp;
             }
         }
     }
 
-    printf("\n--- Student Ranking by Progress ---\n");
+    printf("\n=== STUDENT RANKING BY PROGRESS ===\n");
     for (i = 0; i < count; i++) {
-        printf("Rank %d\n", i + 1);
-        printStudent(temp[i]);
-
-        if (temp[i].progress >= 80) {
-            printf("Level: Top performer\n");
-        } else if (temp[i].progress >= 50) {
-            printf("Level: Medium progress\n");
-        } else {
-            printf("Level: Needs more work\n");
-        }
-
-        printf("-------------------------\n");
+        printf("%d. %s - %.2f\n", i + 1, students[i].name, students[i].progress);
     }
 }
 
 void editStudent(struct Student students[], int count) {
-    int searchId;
-    int i, foundIndex = -1;
-    int editChoice;
-    int newStatus;
-    float newProgress;
+    int id;
+    int index;
+    int option;
+    int statusChoice;
 
     if (count == 0) {
-        printf("No student records available to edit.\n");
+        printf("No records available.\n");
         return;
     }
 
     printf("Enter student ID to edit: ");
-    if (scanf("%d", &searchId) != 1) {
+    if (scanf("%d", &id) != 1) {
         printf("Invalid ID input.\n");
         clearInputBuffer();
         return;
     }
 
-    for (i = 0; i < count; i++) {
-        if (students[i].id == searchId) {
-            foundIndex = i;
-            break;
-        }
-    }
+    index = findStudentById(students, count, id);
 
-    if (foundIndex == -1) {
-        printf("Student with ID %d not found.\n", searchId);
+    if (index == -1) {
+        printf("Student not found.\n");
         return;
     }
 
-    printf("\n--- Edit Student ---\n");
-    printStudent(students[foundIndex]);
-    printf("1. Edit name\n");
-    printf("2. Edit progress\n");
-    printf("3. Edit both name and progress\n");
+    printf("What do you want to edit?\n");
+    printf("1. Name\n");
+    printf("2. Status\n");
     printf("Enter choice: ");
-
-    if (scanf("%d", &editChoice) != 1) {
-        printf("Invalid edit choice.\n");
+    if (scanf("%d", &option) != 1) {
+        printf("Invalid option input.\n");
         clearInputBuffer();
         return;
     }
 
-    switch (editChoice) {
+    switch (option) {
         case 1:
             printf("Enter new name: ");
-            if (scanf("%49s", students[foundIndex].name) != 1) {
+            if (scanf("%49s", students[index].name) != 1) {
                 printf("Invalid name input.\n");
                 clearInputBuffer();
                 return;
@@ -357,161 +386,93 @@ void editStudent(struct Student students[], int count) {
             break;
 
         case 2:
-            printf("Enter new progress (0-100): ");
-            if (scanf("%f", &newProgress) != 1) {
-                printf("Invalid progress input.\n");
-                clearInputBuffer();
-                return;
-            }
-            students[foundIndex].progress = newProgress;
-            updateProgress(&students[foundIndex].progress);
-
-            if (students[foundIndex].progress == 100) {
-                students[foundIndex].status = COMPLETED;
-            } else if (students[foundIndex].progress > 0) {
-                students[foundIndex].status = IN_PROGRESS;
-            } else {
-                students[foundIndex].status = NOT_STARTED;
-            }
-
-            printf("Progress updated successfully.\n");
-            break;
-
-        case 3:
-            printf("Enter new name: ");
-            if (scanf("%49s", students[foundIndex].name) != 1) {
-                printf("Invalid name input.\n");
+            printf("Choose new status:\n");
+            printf("1. Not Started\n");
+            printf("2. In Progress\n");
+            printf("3. Completed\n");
+            printf("Enter status: ");
+            if (scanf("%d", &statusChoice) != 1) {
+                printf("Invalid status input.\n");
                 clearInputBuffer();
                 return;
             }
 
-            printf("Enter new progress (0-100): ");
-            if (scanf("%f", &newProgress) != 1) {
-                printf("Invalid progress input.\n");
-                clearInputBuffer();
-                return;
+            switch (statusChoice) {
+                case 1:
+                    students[index].status = NOT_STARTED;
+                    break;
+                case 2:
+                    students[index].status = IN_PROGRESS;
+                    break;
+                case 3:
+                    students[index].status = COMPLETED;
+                    break;
+                default:
+                    printf("Invalid status choice.\n");
+                    return;
             }
 
-            students[foundIndex].progress = newProgress;
-            updateProgress(&students[foundIndex].progress);
-
-            if (students[foundIndex].progress == 100) {
-                students[foundIndex].status = COMPLETED;
-            } else if (students[foundIndex].progress > 0) {
-                students[foundIndex].status = IN_PROGRESS;
-            } else {
-                students[foundIndex].status = NOT_STARTED;
-            }
-
-            printf("Name and progress updated successfully.\n");
+            printf("Status updated successfully.\n");
             break;
 
         default:
             printf("Invalid edit option.\n");
-            return;
     }
-
-    printf("Do you want to manually change status too? (1=Yes, 2=No): ");
-    if (scanf("%d", &newStatus) != 1) {
-        printf("Invalid choice.\n");
-        clearInputBuffer();
-        return;
-    }
-
-    if (newStatus == 1) {
-        printf("Choose new status:\n");
-        printf("1. Not Started\n");
-        printf("2. In Progress\n");
-        printf("3. Completed\n");
-        printf("Enter status: ");
-
-        if (scanf("%d", &newStatus) != 1) {
-            printf("Invalid status input.\n");
-            clearInputBuffer();
-            return;
-        }
-
-        switch (newStatus) {
-            case 1:
-                students[foundIndex].status = NOT_STARTED;
-                break;
-            case 2:
-                students[foundIndex].status = IN_PROGRESS;
-                break;
-            case 3:
-                students[foundIndex].status = COMPLETED;
-                break;
-            default:
-                printf("Invalid status option. Old status kept.\n");
-                break;
-        }
-    }
-
-    printf("Final updated record:\n");
-    printStudent(students[foundIndex]);
 }
 
 void deleteStudent(struct Student students[], int *count) {
-    int searchId;
-    int i, foundIndex = -1;
+    int id;
+    int index;
+    int i;
 
     if (*count == 0) {
-        printf("No student records available to delete.\n");
+        printf("No records available.\n");
         return;
     }
 
     printf("Enter student ID to delete: ");
-    if (scanf("%d", &searchId) != 1) {
+    if (scanf("%d", &id) != 1) {
         printf("Invalid ID input.\n");
         clearInputBuffer();
         return;
     }
 
-    for (i = 0; i < *count; i++) {
-        if (students[i].id == searchId) {
-            foundIndex = i;
-            break;
-        }
-    }
+    index = findStudentById(students, *count, id);
 
-    if (foundIndex == -1) {
-        printf("Student with ID %d not found.\n", searchId);
+    if (index == -1) {
+        printf("Student not found.\n");
         return;
     }
 
-    printf("Deleting this record:\n");
-    printStudent(students[foundIndex]);
-
-    for (i = foundIndex; i < *count - 1; i++) {
+    for (i = index; i < *count - 1; i++) {
         students[i] = students[i + 1];
     }
 
     (*count)--;
-
     printf("Student deleted successfully.\n");
-    printf("Current total records: %d / %d\n", *count, MAX_STUDENTS);
+}
+
+void showMenu() {
+    printf("\n========== STUDENT PROGRESS TRACKER ==========\n");
+    printf("1. Add student record\n");
+    printf("2. Show all student records\n");
+    printf("3. Show report\n");
+    printf("4. Update student progress\n");
+    printf("5. Search student\n");
+    printf("6. Rank students by progress\n");
+    printf("7. Edit student\n");
+    printf("8. Delete student\n");
+    printf("9. Exit\n");
+    printf("==============================================\n");
 }
 
 int main() {
     struct Student students[MAX_STUDENTS];
     int count = 0;
     int choice;
-    int statusChoice;
-    int i;
-    int searchId;
-    int foundIndex;
 
     do {
-        printf("\n=== Student Progress Tracker ===\n");
-        printf("1. Add student record\n");
-        printf("2. Show all student records\n");
-        printf("3. Show progress report\n");
-        printf("4. Update student progress\n");
-        printf("5. Search student\n");
-        printf("6. Rank students by progress\n");
-        printf("7. Edit student record\n");
-        printf("8. Delete student record\n");
-        printf("9. Exit\n");
+        showMenu();
         printf("Current records: %d / %d\n", count, MAX_STUDENTS);
         printf("Enter your choice: ");
 
@@ -523,137 +484,34 @@ int main() {
 
         switch (choice) {
             case 1:
-                if (count >= MAX_STUDENTS) {
-                    printf("Maximum limit reached. Cannot add more students.\n");
-                    break;
-                }
-
-                printf("Enter student ID: ");
-                if (scanf("%d", &students[count].id) != 1) {
-                    printf("Invalid ID input.\n");
-                    clearInputBuffer();
-                    break;
-                }
-
-                printf("Enter student name: ");
-                if (scanf("%49s", students[count].name) != 1) {
-                    printf("Invalid name input.\n");
-                    clearInputBuffer();
-                    break;
-                }
-
-                printf("Enter progress (0-100): ");
-                if (scanf("%f", &students[count].progress) != 1) {
-                    printf("Invalid progress input.\n");
-                    clearInputBuffer();
-                    break;
-                }
-
-                updateProgress(&students[count].progress);
-
-                printf("Choose status:\n");
-                printf("1. Not Started\n");
-                printf("2. In Progress\n");
-                printf("3. Completed\n");
-                printf("Enter status: ");
-
-                if (scanf("%d", &statusChoice) != 1) {
-                    printf("Invalid status input.\n");
-                    clearInputBuffer();
-                    break;
-                }
-
-                switch (statusChoice) {
-                    case 1:
-                        students[count].status = NOT_STARTED;
-                        break;
-                    case 2:
-                        students[count].status = IN_PROGRESS;
-                        break;
-                    case 3:
-                        students[count].status = COMPLETED;
-                        break;
-                    default:
-                        printf("Invalid status choice. Record not added.\n");
-                        break;
-                }
-
-                if (statusChoice < 1 || statusChoice > 3) {
-                    break;
-                }
-
-                count++;
-                printf("Student record added successfully.\n");
+                addStudent(students, &count);
                 break;
-
             case 2:
-                if (count == 0) {
-                    printf("No student records saved yet.\n");
-                } else {
-                    printf("\n--- All Student Records ---\n");
-                    for (i = 0; i < count; i++) {
-                        printf("Student %d\n", i + 1);
-                        printStudent(students[i]);
-                        printf("-------------------------\n");
-                    }
-                }
+                showAllStudents(students, count);
                 break;
-
             case 3:
                 showReport(students, count);
                 break;
-
             case 4:
-                if (count == 0) {
-                    printf("No student records available to update.\n");
-                    break;
-                }
-
-                printf("Enter student ID to update: ");
-                if (scanf("%d", &searchId) != 1) {
-                    printf("Invalid ID input.\n");
-                    clearInputBuffer();
-                    break;
-                }
-
-                foundIndex = -1;
-                for (i = 0; i < count; i++) {
-                    if (students[i].id == searchId) {
-                        foundIndex = i;
-                        break;
-                    }
-                }
-
-                if (foundIndex == -1) {
-                    printf("Student with ID %d not found.\n", searchId);
-                } else {
-                    modifyStudentProgress(&students[foundIndex]);
-                    printf("Student progress updated successfully.\n");
-                }
+                modifyStudentProgress(students, count);
                 break;
-
             case 5:
                 searchStudent(students, count);
                 break;
-
             case 6:
                 rankStudents(students, count);
                 break;
-
             case 7:
                 editStudent(students, count);
                 break;
-
             case 8:
                 deleteStudent(students, &count);
                 break;
-
             case 9:
                 printf("Exiting program...\n");
                 break;
-
             default:
-                printf("Invalid menu choice. Please choose 1 to 9.\n");
+                printf("Invalid menu choice. Please choose from 1 to 9.\n");
         }
 
     } while (choice != 9);
