@@ -301,6 +301,197 @@ void rankStudents(struct Student students[], int count) {
     }
 }
 
+void editStudent(struct Student students[], int count) {
+    int searchId;
+    int i, foundIndex = -1;
+    int editChoice;
+    int newStatus;
+    float newProgress;
+
+    if (count == 0) {
+        printf("No student records available to edit.\n");
+        return;
+    }
+
+    printf("Enter student ID to edit: ");
+    if (scanf("%d", &searchId) != 1) {
+        printf("Invalid ID input.\n");
+        clearInputBuffer();
+        return;
+    }
+
+    for (i = 0; i < count; i++) {
+        if (students[i].id == searchId) {
+            foundIndex = i;
+            break;
+        }
+    }
+
+    if (foundIndex == -1) {
+        printf("Student with ID %d not found.\n", searchId);
+        return;
+    }
+
+    printf("\n--- Edit Student ---\n");
+    printStudent(students[foundIndex]);
+    printf("1. Edit name\n");
+    printf("2. Edit progress\n");
+    printf("3. Edit both name and progress\n");
+    printf("Enter choice: ");
+
+    if (scanf("%d", &editChoice) != 1) {
+        printf("Invalid edit choice.\n");
+        clearInputBuffer();
+        return;
+    }
+
+    switch (editChoice) {
+        case 1:
+            printf("Enter new name: ");
+            if (scanf("%49s", students[foundIndex].name) != 1) {
+                printf("Invalid name input.\n");
+                clearInputBuffer();
+                return;
+            }
+            printf("Name updated successfully.\n");
+            break;
+
+        case 2:
+            printf("Enter new progress (0-100): ");
+            if (scanf("%f", &newProgress) != 1) {
+                printf("Invalid progress input.\n");
+                clearInputBuffer();
+                return;
+            }
+            students[foundIndex].progress = newProgress;
+            updateProgress(&students[foundIndex].progress);
+
+            if (students[foundIndex].progress == 100) {
+                students[foundIndex].status = COMPLETED;
+            } else if (students[foundIndex].progress > 0) {
+                students[foundIndex].status = IN_PROGRESS;
+            } else {
+                students[foundIndex].status = NOT_STARTED;
+            }
+
+            printf("Progress updated successfully.\n");
+            break;
+
+        case 3:
+            printf("Enter new name: ");
+            if (scanf("%49s", students[foundIndex].name) != 1) {
+                printf("Invalid name input.\n");
+                clearInputBuffer();
+                return;
+            }
+
+            printf("Enter new progress (0-100): ");
+            if (scanf("%f", &newProgress) != 1) {
+                printf("Invalid progress input.\n");
+                clearInputBuffer();
+                return;
+            }
+
+            students[foundIndex].progress = newProgress;
+            updateProgress(&students[foundIndex].progress);
+
+            if (students[foundIndex].progress == 100) {
+                students[foundIndex].status = COMPLETED;
+            } else if (students[foundIndex].progress > 0) {
+                students[foundIndex].status = IN_PROGRESS;
+            } else {
+                students[foundIndex].status = NOT_STARTED;
+            }
+
+            printf("Name and progress updated successfully.\n");
+            break;
+
+        default:
+            printf("Invalid edit option.\n");
+            return;
+    }
+
+    printf("Do you want to manually change status too? (1=Yes, 2=No): ");
+    if (scanf("%d", &newStatus) != 1) {
+        printf("Invalid choice.\n");
+        clearInputBuffer();
+        return;
+    }
+
+    if (newStatus == 1) {
+        printf("Choose new status:\n");
+        printf("1. Not Started\n");
+        printf("2. In Progress\n");
+        printf("3. Completed\n");
+        printf("Enter status: ");
+
+        if (scanf("%d", &newStatus) != 1) {
+            printf("Invalid status input.\n");
+            clearInputBuffer();
+            return;
+        }
+
+        switch (newStatus) {
+            case 1:
+                students[foundIndex].status = NOT_STARTED;
+                break;
+            case 2:
+                students[foundIndex].status = IN_PROGRESS;
+                break;
+            case 3:
+                students[foundIndex].status = COMPLETED;
+                break;
+            default:
+                printf("Invalid status option. Old status kept.\n");
+                break;
+        }
+    }
+
+    printf("Final updated record:\n");
+    printStudent(students[foundIndex]);
+}
+
+void deleteStudent(struct Student students[], int *count) {
+    int searchId;
+    int i, foundIndex = -1;
+
+    if (*count == 0) {
+        printf("No student records available to delete.\n");
+        return;
+    }
+
+    printf("Enter student ID to delete: ");
+    if (scanf("%d", &searchId) != 1) {
+        printf("Invalid ID input.\n");
+        clearInputBuffer();
+        return;
+    }
+
+    for (i = 0; i < *count; i++) {
+        if (students[i].id == searchId) {
+            foundIndex = i;
+            break;
+        }
+    }
+
+    if (foundIndex == -1) {
+        printf("Student with ID %d not found.\n", searchId);
+        return;
+    }
+
+    printf("Deleting this record:\n");
+    printStudent(students[foundIndex]);
+
+    for (i = foundIndex; i < *count - 1; i++) {
+        students[i] = students[i + 1];
+    }
+
+    (*count)--;
+
+    printf("Student deleted successfully.\n");
+    printf("Current total records: %d / %d\n", *count, MAX_STUDENTS);
+}
+
 int main() {
     struct Student students[MAX_STUDENTS];
     int count = 0;
@@ -318,7 +509,9 @@ int main() {
         printf("4. Update student progress\n");
         printf("5. Search student\n");
         printf("6. Rank students by progress\n");
-        printf("7. Exit\n");
+        printf("7. Edit student record\n");
+        printf("8. Delete student record\n");
+        printf("9. Exit\n");
         printf("Current records: %d / %d\n", count, MAX_STUDENTS);
         printf("Enter your choice: ");
 
@@ -448,14 +641,22 @@ int main() {
                 break;
 
             case 7:
+                editStudent(students, count);
+                break;
+
+            case 8:
+                deleteStudent(students, &count);
+                break;
+
+            case 9:
                 printf("Exiting program...\n");
                 break;
 
             default:
-                printf("Invalid menu choice. Please choose 1, 2, 3, 4, 5, 6, or 7.\n");
+                printf("Invalid menu choice. Please choose 1 to 9.\n");
         }
 
-    } while (choice != 7);
+    } while (choice != 9);
 
     return 0;
 }
