@@ -260,6 +260,47 @@ void searchStudent(struct Student students[], int count) {
     }
 }
 
+void rankStudents(struct Student students[], int count) {
+    struct Student temp[MAX_STUDENTS];
+    struct Student swap;
+    int i, j;
+
+    if (count == 0) {
+        printf("No student records available for ranking.\n");
+        return;
+    }
+
+    for (i = 0; i < count; i++) {
+        temp[i] = students[i];
+    }
+
+    for (i = 0; i < count - 1; i++) {
+        for (j = i + 1; j < count; j++) {
+            if (temp[j].progress > temp[i].progress) {
+                swap = temp[i];
+                temp[i] = temp[j];
+                temp[j] = swap;
+            }
+        }
+    }
+
+    printf("\n--- Student Ranking by Progress ---\n");
+    for (i = 0; i < count; i++) {
+        printf("Rank %d\n", i + 1);
+        printStudent(temp[i]);
+
+        if (temp[i].progress >= 80) {
+            printf("Level: Top performer\n");
+        } else if (temp[i].progress >= 50) {
+            printf("Level: Medium progress\n");
+        } else {
+            printf("Level: Needs more work\n");
+        }
+
+        printf("-------------------------\n");
+    }
+}
+
 int main() {
     struct Student students[MAX_STUDENTS];
     int count = 0;
@@ -270,13 +311,14 @@ int main() {
     int foundIndex;
 
     do {
-        printf("\n--- Student Progress Tracker ---\n");
+        printf("\n=== Student Progress Tracker ===\n");
         printf("1. Add student record\n");
         printf("2. Show all student records\n");
         printf("3. Show progress report\n");
         printf("4. Update student progress\n");
         printf("5. Search student\n");
-        printf("6. Exit\n");
+        printf("6. Rank students by progress\n");
+        printf("7. Exit\n");
         printf("Current records: %d / %d\n", count, MAX_STUDENTS);
         printf("Enter your choice: ");
 
@@ -402,14 +444,18 @@ int main() {
                 break;
 
             case 6:
+                rankStudents(students, count);
+                break;
+
+            case 7:
                 printf("Exiting program...\n");
                 break;
 
             default:
-                printf("Invalid menu choice. Please choose 1, 2, 3, 4, 5, or 6.\n");
+                printf("Invalid menu choice. Please choose 1, 2, 3, 4, 5, 6, or 7.\n");
         }
 
-    } while (choice != 6);
+    } while (choice != 7);
 
     return 0;
 }
