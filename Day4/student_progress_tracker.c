@@ -19,6 +19,7 @@ struct Student {
 void clearInputBuffer();
 void addStudent(struct Student students[], int *count);
 void displayStudents(struct Student students[], int count);
+void showReport(struct Student students[], int count);
 const char* getStatusText(enum Status status);
 
 int main() {
@@ -31,7 +32,8 @@ int main() {
         printf("\n===== STUDENT PROGRESS TRACKER =====\n");
         printf("1. Add Student Record\n");
         printf("2. Display All Records\n");
-        printf("3. Exit\n");
+        printf("3. Show Report\n");
+        printf("4. Exit\n");
         printf("Choose an option: ");
 
         result = scanf("%d", &choice);
@@ -50,13 +52,16 @@ int main() {
                 displayStudents(students, count);
                 break;
             case 3:
+                showReport(students, count);
+                break;
+            case 4:
                 printf("Exiting program...\n");
                 break;
             default:
-                printf("Invalid menu choice. Please select 1, 2, or 3.\n");
+                printf("Invalid menu choice. Please select 1, 2, 3, or 4.\n");
         }
 
-    } while (choice != 3);
+    } while (choice != 4);
 
     return 0;
 }
@@ -150,6 +155,57 @@ void displayStudents(struct Student students[], int count) {
         printf("Name: %s\n", students[i].name);
         printf("Progress: %.2f\n", students[i].progress);
         printf("Status: %s\n", getStatusText(students[i].status));
+    }
+}
+
+void showReport(struct Student students[], int count) {
+    int i;
+    int completedCount = 0;
+    float totalProgress = 0;
+    float averageProgress;
+    float highestProgress;
+    float lowestProgress;
+
+    if (count == 0) {
+        printf("\n===== ANALYTICAL REPORT =====\n");
+        printf("No records available yet.\n");
+        return;
+    }
+
+    highestProgress = students[0].progress;
+    lowestProgress = students[0].progress;
+
+    for (i = 0; i < count; i++) {
+        totalProgress += students[i].progress;
+
+        if (students[i].status == COMPLETED) {
+            completedCount++;
+        }
+
+        if (students[i].progress > highestProgress) {
+            highestProgress = students[i].progress;
+        }
+
+        if (students[i].progress < lowestProgress) {
+            lowestProgress = students[i].progress;
+        }
+    }
+
+    averageProgress = totalProgress / count;
+
+    printf("\n===== ANALYTICAL REPORT =====\n");
+    printf("Total Records: %d\n", count);
+    printf("Completed Students: %d\n", completedCount);
+    printf("Average Progress: %.2f\n", averageProgress);
+    printf("Highest Progress: %.2f\n", highestProgress);
+    printf("Lowest Progress: %.2f\n", lowestProgress);
+
+    if (averageProgress >= 85) {
+        printf("Performance Message: Overall progress is excellent.\n");
+    } else if (averageProgress >= 50) {
+        printf("Performance Message: Overall progress is satisfactory.\n");
+    } else {
+        printf("Performance Message: Overall progress needs improvement.\n");
     }
 }
 
