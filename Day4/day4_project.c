@@ -46,6 +46,66 @@ void clearInputBuffer() {
     }
 }
 
+void showReport(struct Student students[], int count) {
+    int i;
+    int completedCount = 0;
+    float totalProgress = 0;
+    float highestProgress, lowestProgress, averageProgress;
+
+    if (count == 0) {
+        printf("\nNo records available for analysis.\n");
+        return;
+    }
+
+    highestProgress = students[0].progress;
+    lowestProgress = students[0].progress;
+
+    for (i = 0; i < count; i++) {
+        totalProgress += students[i].progress;
+
+        if (students[i].status == COMPLETED) {
+            completedCount++;
+        }
+
+        if (students[i].progress > highestProgress) {
+            highestProgress = students[i].progress;
+        }
+
+        if (students[i].progress < lowestProgress) {
+            lowestProgress = students[i].progress;
+        }
+    }
+
+    averageProgress = totalProgress / count;
+
+    printf("\n--- Student Progress Report ---\n");
+    printf("Total records: %d\n", count);
+    printf("Completed students: %d\n", completedCount);
+    printf("Average progress: %.2f\n", averageProgress);
+    printf("Highest progress: %.2f\n", highestProgress);
+    printf("Lowest progress: %.2f\n", lowestProgress);
+
+    if (averageProgress >= 80) {
+        printf("Class performance: Excellent\n");
+    } else if (averageProgress >= 60) {
+        printf("Class performance: Good\n");
+    } else if (averageProgress >= 40) {
+        printf("Class performance: Needs Improvement\n");
+    } else {
+        printf("Class performance: Weak\n");
+    }
+
+    if (completedCount == count) {
+        printf("Completion status: All students completed their progress.\n");
+    } else if (completedCount > 0) {
+        printf("Completion status: Some students completed their progress.\n");
+    } else {
+        printf("Completion status: No student has completed progress yet.\n");
+    }
+
+    printf("-------------------------------\n");
+}
+
 int main() {
     struct Student students[MAX_STUDENTS];
     int count = 0;
@@ -57,7 +117,8 @@ int main() {
         printf("\n--- Student Progress Tracker ---\n");
         printf("1. Add student record\n");
         printf("2. Show all student records\n");
-        printf("3. Exit\n");
+        printf("3. Show progress report\n");
+        printf("4. Exit\n");
         printf("Current records: %d / %d\n", count, MAX_STUDENTS);
         printf("Enter your choice: ");
 
@@ -150,14 +211,18 @@ int main() {
                 break;
 
             case 3:
+                showReport(students, count);
+                break;
+
+            case 4:
                 printf("Exiting program...\n");
                 break;
 
             default:
-                printf("Invalid menu choice. Please choose 1, 2, or 3.\n");
+                printf("Invalid menu choice. Please choose 1, 2, 3, or 4.\n");
         }
 
-    } while (choice != 3);
+    } while (choice != 4);
 
     return 0;
 }
