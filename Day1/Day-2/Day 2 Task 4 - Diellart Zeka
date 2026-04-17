@@ -1,36 +1,64 @@
 #include <stdio.h>
 
 int main() {
-    int day;
 
-    printf("Enter a number (1-7): ");
-    scanf("%d", &day);
+    int age, option;
+    char initial;
+    double points;
 
-    switch(day) {
-        case 1:
-            printf("Monday - Work day\n");
-            break;
-        case 2:
-            printf("Tuesday - Work day\n");
-            break;
-        case 3:
-            printf("Wednesday - Work day\n");
-            break;
-        case 4:
-            printf("Thursday - Work day\n");
-            break;
-        case 5:
-            printf("Friday - Work day\n");
-            break;
-        case 6:
-            printf("Saturday - Weekend\n");
-            break;
-        case 7:
-            printf("Sunday - Weekend\n");
-            break;
-        default:
-            printf("Invalid input\n");
+    printf("Enter age: ");
+    scanf("%d", &age);
+
+    printf("Enter initial: ");
+    scanf(" %c", &initial);
+
+    printf("Enter points: ");
+    scanf("%lf", &points);
+
+    printf("Choose workshop (1-3): ");
+    scanf("%d", &option);
+
+    printf("\n--- Status ---\n");
+
+    if (age >= 16 && age <= 25) {
+        printf("Age: Eligible\n");
+    } else {
+        printf("Age: Not eligible\n");
     }
+
+    if (points < 50) {
+        printf("Level: Needs more practice\n");
+    }
+    else if (points < 80) {
+        printf("Level: Ready to continue\n");
+    }
+    else {
+        printf("Level: Ready for challenge\n");
+    }
+
+    switch(option) {
+
+        case 1:
+            printf("Workshop: Programming Basics\n");
+            break;
+
+        case 2:
+            printf("Workshop: Web Development\n");
+            break;
+
+        case 3:
+            printf("Workshop: Cybersecurity\n");
+            break;
+
+        default:
+            printf("Workshop: Invalid option\n");
+    }
+
+    printf("\n--- Summary ---\n");
+    printf("Age: %d\n", age);
+    printf("Initial: %c\n", initial);
+    printf("Points: %.2lf\n", points);
+    printf("Option: %d\n", option);
 
     return 0;
 }
