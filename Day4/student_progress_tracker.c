@@ -23,6 +23,7 @@ void showReport(struct Student students[], int count);
 void searchStudent(struct Student students[], int count);
 void updateStudent(struct Student students[], int count);
 void updateStudentProgress(struct Student *student);
+void sortStudentsByProgress(struct Student students[], int count);
 void printStudentDetails(struct Student student, int recordNumber);
 void printRecommendation(struct Student student);
 const char* getStatusText(enum Status status);
@@ -34,19 +35,20 @@ int main() {
     int result;
 
     do {
-        printf("\n===== STUDENT PROGRESS TRACKER =====\n");
+        printf("\n========== STUDENT PROGRESS TRACKER ==========\n");
         printf("1. Add Student Record\n");
         printf("2. Display All Records\n");
-        printf("3. Show Report\n");
+        printf("3. Show Analytical Report\n");
         printf("4. Update Student Progress\n");
         printf("5. Search Student\n");
-        printf("6. Exit\n");
+        printf("6. Rank Students by Progress\n");
+        printf("7. Exit\n");
         printf("Choose an option: ");
 
         result = scanf("%d", &choice);
 
         if (result != 1) {
-            printf("Invalid input. Please enter a number from the menu.\n");
+            printf("Invalid input. Please enter a valid number.\n");
             clearInputBuffer();
             continue;
         }
@@ -68,13 +70,16 @@ int main() {
                 searchStudent(students, count);
                 break;
             case 6:
+                sortStudentsByProgress(students, count);
+                break;
+            case 7:
                 printf("Exiting program...\n");
                 break;
             default:
-                printf("Invalid menu choice. Please select 1, 2, 3, 4, 5, or 6.\n");
+                printf("Invalid menu choice. Please select from 1 to 7.\n");
         }
 
-    } while (choice != 6);
+    } while (choice != 7);
 
     return 0;
 }
@@ -161,7 +166,7 @@ void displayStudents(struct Student students[], int count) {
         return;
     }
 
-    printf("\n===== STORED STUDENT RECORDS =====\n");
+    printf("\n========== STORED STUDENT RECORDS ==========\n");
     for (i = 0; i < count; i++) {
         printStudentDetails(students[i], i + 1);
     }
@@ -176,7 +181,7 @@ void showReport(struct Student students[], int count) {
     float lowestProgress;
 
     if (count == 0) {
-        printf("\n===== ANALYTICAL REPORT =====\n");
+        printf("\n========== ANALYTICAL REPORT ==========\n");
         printf("No records available yet.\n");
         return;
     }
@@ -202,7 +207,7 @@ void showReport(struct Student students[], int count) {
 
     averageProgress = totalProgress / count;
 
-    printf("\n===== ANALYTICAL REPORT =====\n");
+    printf("\n========== ANALYTICAL REPORT ==========\n");
     printf("Total Records: %d\n", count);
     printf("Completed Students: %d\n", completedCount);
     printf("Average Progress: %.2f\n", averageProgress);
@@ -299,7 +304,7 @@ void searchStudent(struct Student students[], int count) {
         return;
     }
 
-    printf("\n===== SEARCH STUDENT =====\n");
+    printf("\n========== SEARCH STUDENT ==========\n");
     printf("1. Search by ID\n");
     printf("2. Search by Name\n");
     printf("Choose search option: ");
@@ -352,6 +357,35 @@ void searchStudent(struct Student students[], int count) {
 
     if (!found) {
         printf("No matching record found.\n");
+    }
+}
+
+void sortStudentsByProgress(struct Student students[], int count) {
+    int i, j;
+    struct Student temp;
+
+    if (count == 0) {
+        printf("\nNo student records available to rank.\n");
+        return;
+    }
+
+    for (i = 0; i < count - 1; i++) {
+        for (j = i + 1; j < count; j++) {
+            if (students[j].progress > students[i].progress) {
+                temp = students[i];
+                students[i] = students[j];
+                students[j] = temp;
+            }
+        }
+    }
+
+    printf("\n========== STUDENT RANKING BY PROGRESS ==========\n");
+    for (i = 0; i < count; i++) {
+        printf("\nRank #%d\n", i + 1);
+        printf("ID: %d\n", students[i].id);
+        printf("Name: %s\n", students[i].name);
+        printf("Progress: %.2f\n", students[i].progress);
+        printf("Status: %s\n", getStatusText(students[i].status));
     }
 }
 
