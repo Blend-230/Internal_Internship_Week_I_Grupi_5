@@ -1,1 +1,106 @@
+#include <stdio.h>
 
+#define MAX 5
+
+enum Status { WEAK = 1, OK, GOOD };
+
+struct Student {
+    int id;
+    char name[50];
+    float score;
+    enum Status status;
+};
+
+int main() {
+
+    struct Student students[MAX];
+    int count = 0;
+    int choice;
+    int statusChoice;
+
+    while (1) {
+
+        printf("\n--- MENU ---\n");
+        printf("1. Add student\n");
+        printf("2. Show students\n");
+        printf("3. Exit\n");
+        printf("Choice: ");
+        scanf("%d", &choice);
+
+        switch(choice) {
+
+            case 1:
+
+                if (count >= MAX) {
+                    printf("Max limit reached!\n");
+                    break;
+                }
+
+                printf("Enter ID: ");
+                scanf("%d", &students[count].id);
+
+                printf("Enter Name: ");
+                scanf("%s", students[count].name);
+
+                printf("Enter Score: ");
+                scanf("%f", &students[count].score);
+
+                printf("Select Status (1=WEAK, 2=OK, 3=GOOD): ");
+                scanf("%d", &statusChoice);
+
+                switch(statusChoice) {
+                    case 1:
+                        students[count].status = WEAK;
+                        break;
+                    case 2:
+                        students[count].status = OK;
+                        break;
+                    case 3:
+                        students[count].status = GOOD;
+                        break;
+                    default:
+                        printf("Invalid status! Setting default WEAK\n");
+                        students[count].status = WEAK;
+                }
+
+                count++;
+                break;
+
+            case 2:
+
+                if (count == 0) {
+                    printf("No students yet.\n");
+                    break;
+                }
+
+                for (int i = 0; i < count; i++) {
+
+                    printf("\nID: %d\n", students[i].id);
+                    printf("Name: %s\n", students[i].name);
+                    printf("Score: %.2f\n", students[i].score);
+
+                    printf("Status: ");
+                    switch(students[i].status) {
+                        case WEAK:
+                            printf("WEAK\n");
+                            break;
+                        case OK:
+                            printf("OK\n");
+                            break;
+                        case GOOD:
+                            printf("GOOD\n");
+                            break;
+                    }
+                }
+                break;
+
+            case 3:
+                return 0;
+
+            default:
+                printf("Invalid menu option!\n");
+        }
+    }
+
+    return 0;
+}
