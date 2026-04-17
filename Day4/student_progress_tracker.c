@@ -20,6 +20,9 @@ void clearInputBuffer();
 void addStudent(struct Student students[], int *count);
 void displayStudents(struct Student students[], int count);
 void showReport(struct Student students[], int count);
+void searchStudent(struct Student students[], int count);
+void printStudentDetails(struct Student student, int recordNumber);
+void printRecommendation(struct Student student);
 const char* getStatusText(enum Status status);
 
 int main() {
@@ -33,7 +36,8 @@ int main() {
         printf("1. Add Student Record\n");
         printf("2. Display All Records\n");
         printf("3. Show Report\n");
-        printf("4. Exit\n");
+        printf("4. Search Student\n");
+        printf("5. Exit\n");
         printf("Choose an option: ");
 
         result = scanf("%d", &choice);
@@ -55,13 +59,16 @@ int main() {
                 showReport(students, count);
                 break;
             case 4:
+                searchStudent(students, count);
+                break;
+            case 5:
                 printf("Exiting program...\n");
                 break;
             default:
-                printf("Invalid menu choice. Please select 1, 2, 3, or 4.\n");
+                printf("Invalid menu choice. Please select 1, 2, 3, 4, or 5.\n");
         }
 
-    } while (choice != 4);
+    } while (choice != 5);
 
     return 0;
 }
@@ -150,11 +157,7 @@ void displayStudents(struct Student students[], int count) {
 
     printf("\n===== STORED STUDENT RECORDS =====\n");
     for (i = 0; i < count; i++) {
-        printf("\nRecord #%d\n", i + 1);
-        printf("ID: %d\n", students[i].id);
-        printf("Name: %s\n", students[i].name);
-        printf("Progress: %.2f\n", students[i].progress);
-        printf("Status: %s\n", getStatusText(students[i].status));
+        printStudentDetails(students[i], i + 1);
     }
 }
 
@@ -206,6 +209,101 @@ void showReport(struct Student students[], int count) {
         printf("Performance Message: Overall progress is satisfactory.\n");
     } else {
         printf("Performance Message: Overall progress needs improvement.\n");
+    }
+}
+
+void searchStudent(struct Student students[], int count) {
+    int searchChoice;
+    int result;
+    int searchId;
+    char searchName[50];
+    int i;
+    int found = 0;
+
+    if (count == 0) {
+        printf("\nNo student records available to search.\n");
+        return;
+    }
+
+    printf("\n===== SEARCH STUDENT =====\n");
+    printf("1. Search by ID\n");
+    printf("2. Search by Name\n");
+    printf("Choose search option: ");
+
+    result = scanf("%d", &searchChoice);
+    if (result != 1) {
+        printf("Invalid search option input.\n");
+        clearInputBuffer();
+        return;
+    }
+
+    switch (searchChoice) {
+        case 1:
+            printf("Enter student ID to search: ");
+            result = scanf("%d", &searchId);
+            if (result != 1) {
+                printf("Invalid ID input.\n");
+                clearInputBuffer();
+                return;
+            }
+
+            for (i = 0; i < count; i++) {
+                if (students[i].id == searchId) {
+                    printStudentDetails(students[i], i + 1);
+                    printRecommendation(students[i]);
+                    found = 1;
+                }
+            }
+            break;
+
+        case 2:
+            clearInputBuffer();
+            printf("Enter student name to search: ");
+            fgets(searchName, sizeof(searchName), stdin);
+            searchName[strcspn(searchName, "\n")] = '\0';
+
+            for (i = 0; i < count; i++) {
+                if (strcmp(students[i].name, searchName) == 0) {
+                    printStudentDetails(students[i], i + 1);
+                    printRecommendation(students[i]);
+                    found = 1;
+                }
+            }
+            break;
+
+        default:
+            printf("Invalid search menu choice.\n");
+            return;
+    }
+
+    if (!found) {
+        printf("No matching record found.\n");
+    }
+}
+
+void printStudentDetails(struct Student student, int recordNumber) {
+    printf("\nRecord #%d\n", recordNumber);
+    printf("ID: %d\n", student.id);
+    printf("Name: %s\n", student.name);
+    printf("Progress: %.2f\n", student.progress);
+    printf("Status: %s\n", getStatusText(student.status));
+}
+
+void printRecommendation(struct Student student) {
+    printf("Evaluation: ");
+
+    if (student.progress < 50 && student.status == NOT_STARTED) {
+        printf("Urgent attention needed. Student has very low progress and has not started properly.\n");
+    } else if (student.progress < 50 && student.status == IN_PROGRESS) {
+        printf("Student has started, but progress is still low. More support is recommended.\n");
+    } else if (student.progress >= 50 && student.progress < 100 && student.status == IN_PROGRESS) {
+        printf("Student is making acceptable progress. Keep working consistently.\n");
+    } else if (student.progress == 100 && student.status == COMPLETED) {
+        printf("Excellent result. Student has fully completed the progress successfully.\n");
+    } else if (student.progress >= 80 && student.status == COMPLETED) {
+        printf("Very good performance. The student is in a strong position.\n");
+    } else {
+        printf("Record found. Monitor this student for further updates.\n");
     }
 }
 
