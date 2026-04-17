@@ -16,6 +16,9 @@ typedef struct {
     Status status;
 } Student;
 
+/* =========================
+   STATUS SELECTION
+========================= */
 Status chooseStatus() {
     int choice;
 
@@ -37,6 +40,9 @@ Status chooseStatus() {
     }
 }
 
+/* =========================
+   ADD STUDENT
+========================= */
 void addStudent(Student *s) {
     printf("\n--- Add New Student ---\n");
 
@@ -59,6 +65,9 @@ void addStudent(Student *s) {
     printf("Student added successfully!\n");
 }
 
+/* =========================
+   DISPLAY STUDENTS
+========================= */
 void displayStudents(Student students[], int count) {
     printf("\n--- Student List ---\n");
 
@@ -87,7 +96,9 @@ void displayStudents(Student students[], int count) {
     }
 }
 
-// 🔥 TASK 3 - RAPORTI ANALITIK
+/* =========================
+   REPORT (TASK 3)
+========================= */
 void generateReport(Student students[], int count) {
     printf("\n===== STUDENT REPORT =====\n");
 
@@ -135,6 +146,87 @@ void generateReport(Student students[], int count) {
     }
 }
 
+/* =========================
+   TASK 5 - SEARCH SYSTEM
+========================= */
+void searchStudent(Student students[], int count) {
+    if (count == 0) {
+        printf("\nNo students to search.\n");
+        return;
+    }
+
+    int choice;
+    int id;
+    char name[50];
+    int found = 0;
+
+    printf("\nSearch by:\n");
+    printf("1. ID\n");
+    printf("2. Name\n");
+    printf("Choice: ");
+    scanf("%d", &choice);
+
+    if (choice == 1) {
+        printf("Enter ID: ");
+        scanf("%d", &id);
+
+        for (int i = 0; i < count; i++) {
+            if (students[i].id == id) {
+                printf("\n--- Student Found ---\n");
+                printf("ID: %d\n", students[i].id);
+                printf("Name: %s\n", students[i].name);
+                printf("Progress: %.2f\n", students[i].progress);
+
+                found = 1;
+
+                // SMART LOGIC
+                if (students[i].progress < 50 && students[i].status != COMPLETED) {
+                    printf("Warning: Low progress! Needs improvement.\n");
+                } else if (students[i].progress >= 80) {
+                    printf("Excellent performance!\n");
+                } else {
+                    printf("Good progress, keep improving.\n");
+                }
+            }
+        }
+    }
+    else if (choice == 2) {
+        printf("Enter Name: ");
+        scanf("%s", name);
+
+        for (int i = 0; i < count; i++) {
+            if (strcmp(students[i].name, name) == 0) {
+                printf("\n--- Student Found ---\n");
+                printf("ID: %d\n", students[i].id);
+                printf("Name: %s\n", students[i].name);
+                printf("Progress: %.2f\n", students[i].progress);
+
+                found = 1;
+
+                // SMART LOGIC
+                if (students[i].progress < 50 && students[i].status != COMPLETED) {
+                    printf("Warning: Low progress! Needs improvement.\n");
+                } else if (students[i].progress >= 80) {
+                    printf("Excellent performance!\n");
+                } else {
+                    printf("Good progress, keep improving.\n");
+                }
+            }
+        }
+    }
+    else {
+        printf("Invalid search option!\n");
+        return;
+    }
+
+    if (!found) {
+        printf("\nNo matching student found.\n");
+    }
+}
+
+/* =========================
+   MAIN PROGRAM
+========================= */
 int main() {
     Student students[MAX_STUDENTS];
     int count = 0;
@@ -145,11 +237,12 @@ int main() {
         printf("1. Add Student\n");
         printf("2. Show Students\n");
         printf("3. Show Report\n");
-        printf("4. Exit\n");
+        printf("4. Search Student\n");
+        printf("5. Exit\n");
         printf("Choice: ");
         scanf("%d", &choice);
 
-        if (choice < 1 || choice > 4) {
+        if (choice < 1 || choice > 5) {
             printf("Invalid menu option! Try again.\n");
             continue;
         }
@@ -173,6 +266,10 @@ int main() {
                 break;
 
             case 4:
+                searchStudent(students, count);
+                break;
+
+            case 5:
                 printf("Exiting...\n");
                 return 0;
         }
