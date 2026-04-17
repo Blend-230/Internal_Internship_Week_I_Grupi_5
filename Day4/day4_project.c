@@ -40,6 +40,12 @@ void showStatus(enum Status status) {
     }
 }
 
+void clearInputBuffer() {
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF) {
+    }
+}
+
 int main() {
     struct Student students[MAX_STUDENTS];
     int count = 0;
@@ -54,45 +60,76 @@ int main() {
         printf("3. Exit\n");
         printf("Current records: %d / %d\n", count, MAX_STUDENTS);
         printf("Enter your choice: ");
-        scanf("%d", &choice);
+
+        if (scanf("%d", &choice) != 1) {
+            printf("Invalid menu input. Please enter a number.\n");
+            clearInputBuffer();
+            continue;
+        }
 
         switch (choice) {
             case 1:
                 if (count >= MAX_STUDENTS) {
                     printf("Maximum limit reached. Cannot add more students.\n");
-                } else {
-                    printf("Enter student ID: ");
-                    scanf("%d", &students[count].id);
-
-                    printf("Enter student name: ");
-                    scanf("%s", students[count].name);
-
-                    printf("Enter progress (0-100): ");
-                    scanf("%f", &students[count].progress);
-
-                    updateProgress(&students[count].progress);
-
-                    printf("Choose status:\n");
-                    printf("1. Not Started\n");
-                    printf("2. In Progress\n");
-                    printf("3. Completed\n");
-                    printf("Enter status: ");
-                    scanf("%d", &statusChoice);
-
-                    if (statusChoice == 1) {
-                        students[count].status = NOT_STARTED;
-                    } else if (statusChoice == 2) {
-                        students[count].status = IN_PROGRESS;
-                    } else if (statusChoice == 3) {
-                        students[count].status = COMPLETED;
-                    } else {
-                        printf("Invalid status. Default set to Not Started.\n");
-                        students[count].status = NOT_STARTED;
-                    }
-
-                    count++;
-                    printf("Student record added successfully.\n");
+                    break;
                 }
+
+                printf("Enter student ID: ");
+                if (scanf("%d", &students[count].id) != 1) {
+                    printf("Invalid ID input.\n");
+                    clearInputBuffer();
+                    break;
+                }
+
+                printf("Enter student name: ");
+                if (scanf("%49s", students[count].name) != 1) {
+                    printf("Invalid name input.\n");
+                    clearInputBuffer();
+                    break;
+                }
+
+                printf("Enter progress (0-100): ");
+                if (scanf("%f", &students[count].progress) != 1) {
+                    printf("Invalid progress input.\n");
+                    clearInputBuffer();
+                    break;
+                }
+
+                updateProgress(&students[count].progress);
+
+                printf("Choose status:\n");
+                printf("1. Not Started\n");
+                printf("2. In Progress\n");
+                printf("3. Completed\n");
+                printf("Enter status: ");
+
+                if (scanf("%d", &statusChoice) != 1) {
+                    printf("Invalid status input.\n");
+                    clearInputBuffer();
+                    break;
+                }
+
+                switch (statusChoice) {
+                    case 1:
+                        students[count].status = NOT_STARTED;
+                        break;
+                    case 2:
+                        students[count].status = IN_PROGRESS;
+                        break;
+                    case 3:
+                        students[count].status = COMPLETED;
+                        break;
+                    default:
+                        printf("Invalid status choice. Record not added.\n");
+                        break;
+                }
+
+                if (statusChoice < 1 || statusChoice > 3) {
+                    break;
+                }
+
+                count++;
+                printf("Student record added successfully.\n");
                 break;
 
             case 2:
@@ -117,7 +154,7 @@ int main() {
                 break;
 
             default:
-                printf("Invalid menu choice.\n");
+                printf("Invalid menu choice. Please choose 1, 2, or 3.\n");
         }
 
     } while (choice != 3);
