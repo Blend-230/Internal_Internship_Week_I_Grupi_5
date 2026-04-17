@@ -1,13 +1,24 @@
-printf("Enter your age: ");
+#include <stdio.h>
+
+int main() {
+
+    int age;
+    char initial;
+    float height;
+    double average;
+    short smallNumber = 10;
+    long bigNumber = 100000;
+
+    printf("Enter age: ");
     scanf("%d", &age);
 
-    printf("Enter your initial: ");
-    scanf(" %c", &initial);   
+    printf("Enter initial: ");
+    scanf(" %c", &initial);
 
-    printf("Enter your height: ");
+    printf("Enter height: ");
     scanf("%f", &height);
 
-    printf("Enter your average: ");
+    printf("Enter average: ");
     scanf("%lf", &average);
 
     printf("\n--- User Profile ---\n");
