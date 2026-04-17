@@ -3,12 +3,18 @@
 
 #define MAX_STUDENTS 5
 
+/* =========================
+   ENUM STATUS
+========================= */
 typedef enum {
     NOT_STARTED = 1,
     IN_PROGRESS,
     COMPLETED
 } Status;
 
+/* =========================
+   STRUCT STUDENT
+========================= */
 typedef struct {
     int id;
     char name[50];
@@ -35,16 +41,16 @@ Status chooseStatus() {
             case 2: return IN_PROGRESS;
             case 3: return COMPLETED;
             default:
-                printf("Invalid status choice! Try again.\n");
+                printf("Invalid choice! Try again.\n");
         }
     }
 }
 
 /* =========================
-   ADD STUDENT
+   ADD STUDENT (POINTER)
 ========================= */
 void addStudent(Student *s) {
-    printf("\n--- Add New Student ---\n");
+    printf("\n--- Add Student ---\n");
 
     printf("Enter ID: ");
     scanf("%d", &s->id);
@@ -56,7 +62,7 @@ void addStudent(Student *s) {
     scanf("%f", &s->progress);
 
     while (s->progress < 0 || s->progress > 100) {
-        printf("Invalid progress! Enter again (0-100): ");
+        printf("Invalid! Enter again (0-100): ");
         scanf("%f", &s->progress);
     }
 
@@ -97,7 +103,7 @@ void displayStudents(Student students[], int count) {
 }
 
 /* =========================
-   REPORT (TASK 3)
+   REPORT (ANALYTICS)
 ========================= */
 void generateReport(Student students[], int count) {
     printf("\n===== STUDENT REPORT =====\n");
@@ -115,39 +121,35 @@ void generateReport(Student students[], int count) {
     for (int i = 0; i < count; i++) {
         sum += students[i].progress;
 
-        if (students[i].status == COMPLETED) {
+        if (students[i].status == COMPLETED)
             completed++;
-        }
 
-        if (students[i].progress > max) {
+        if (students[i].progress > max)
             max = students[i].progress;
-        }
 
-        if (students[i].progress < min) {
+        if (students[i].progress < min)
             min = students[i].progress;
-        }
     }
 
     float avg = sum / count;
 
     printf("Total Students: %d\n", count);
-    printf("Completed Students: %d\n", completed);
+    printf("Completed: %d\n", completed);
     printf("Average Progress: %.2f\n", avg);
     printf("Highest Progress: %.2f\n", max);
     printf("Lowest Progress: %.2f\n", min);
 
     printf("\nPerformance: ");
-    if (avg >= 80) {
+    if (avg >= 80)
         printf("Excellent\n");
-    } else if (avg >= 50) {
+    else if (avg >= 50)
         printf("Good\n");
-    } else {
+    else
         printf("Needs Improvement\n");
-    }
 }
 
 /* =========================
-   TASK 5 - SEARCH SYSTEM
+   SEARCH SYSTEM
 ========================= */
 void searchStudent(Student students[], int count) {
     if (count == 0) {
@@ -155,8 +157,7 @@ void searchStudent(Student students[], int count) {
         return;
     }
 
-    int choice;
-    int id;
+    int choice, id;
     char name[50];
     int found = 0;
 
@@ -179,14 +180,12 @@ void searchStudent(Student students[], int count) {
 
                 found = 1;
 
-                // SMART LOGIC
-                if (students[i].progress < 50 && students[i].status != COMPLETED) {
-                    printf("Warning: Low progress! Needs improvement.\n");
-                } else if (students[i].progress >= 80) {
+                if (students[i].progress < 50)
+                    printf("Warning: Low performance!\n");
+                else if (students[i].progress >= 80)
                     printf("Excellent performance!\n");
-                } else {
-                    printf("Good progress, keep improving.\n");
-                }
+                else
+                    printf("Good progress.\n");
             }
         }
     }
@@ -203,29 +202,78 @@ void searchStudent(Student students[], int count) {
 
                 found = 1;
 
-                // SMART LOGIC
-                if (students[i].progress < 50 && students[i].status != COMPLETED) {
-                    printf("Warning: Low progress! Needs improvement.\n");
-                } else if (students[i].progress >= 80) {
+                if (students[i].progress < 50)
+                    printf("Warning: Low performance!\n");
+                else if (students[i].progress >= 80)
                     printf("Excellent performance!\n");
-                } else {
-                    printf("Good progress, keep improving.\n");
-                }
+                else
+                    printf("Good progress.\n");
             }
         }
     }
     else {
-        printf("Invalid search option!\n");
+        printf("Invalid choice!\n");
         return;
     }
 
-    if (!found) {
-        printf("\nNo matching student found.\n");
-    }
+    if (!found)
+        printf("No matching student found.\n");
 }
 
 /* =========================
-   MAIN PROGRAM
+   UPDATE SYSTEM (POINTER)
+========================= */
+void updateStudent(Student *s) {
+    printf("\n--- Update Student ---\n");
+
+    printf("Current Progress: %.2f\n", s->progress);
+
+    printf("Enter new Progress (0-100): ");
+    scanf("%f", &s->progress);
+
+    while (s->progress < 0 || s->progress > 100) {
+        printf("Invalid! Enter again: ");
+        scanf("%f", &s->progress);
+    }
+
+    if (s->progress == 0)
+        s->status = NOT_STARTED;
+    else if (s->progress < 100)
+        s->status = IN_PROGRESS;
+    else
+        s->status = COMPLETED;
+
+    printf("Student updated successfully!\n");
+}
+
+/* =========================
+   UPDATE BY ID
+========================= */
+void updateStudentById(Student students[], int count) {
+    if (count == 0) {
+        printf("\nNo students available.\n");
+        return;
+    }
+
+    int id, found = 0;
+
+    printf("\nEnter ID to update: ");
+    scanf("%d", &id);
+
+    for (int i = 0; i < count; i++) {
+        if (students[i].id == id) {
+            updateStudent(&students[i]); // POINTER REAL
+            found = 1;
+            break;
+        }
+    }
+
+    if (!found)
+        printf("Student not found!\n");
+}
+
+/* =========================
+   MAIN MENU
 ========================= */
 int main() {
     Student students[MAX_STUDENTS];
@@ -233,25 +281,26 @@ int main() {
     int choice;
 
     while (1) {
-        printf("\n==== Student Progress Tracker ====\n");
+        printf("\n==== STUDENT TRACKER ====\n");
         printf("1. Add Student\n");
         printf("2. Show Students\n");
         printf("3. Show Report\n");
         printf("4. Search Student\n");
-        printf("5. Exit\n");
+        printf("5. Update Student\n");
+        printf("6. Exit\n");
         printf("Choice: ");
         scanf("%d", &choice);
 
-        if (choice < 1 || choice > 5) {
-            printf("Invalid menu option! Try again.\n");
+        if (choice < 1 || choice > 6) {
+            printf("Invalid option!\n");
             continue;
         }
 
         switch (choice) {
             case 1:
-                if (count >= MAX_STUDENTS) {
-                    printf("Maximum limit reached!\n");
-                } else {
+                if (count >= MAX_STUDENTS)
+                    printf("Limit reached!\n");
+                else {
                     addStudent(&students[count]);
                     count++;
                 }
@@ -270,6 +319,10 @@ int main() {
                 break;
 
             case 5:
+                updateStudentById(students, count);
+                break;
+
+            case 6:
                 printf("Exiting...\n");
                 return 0;
         }
